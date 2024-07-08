@@ -1,0 +1,370 @@
+---
+sidebar_position: 5
+slug: /reachable-panics
+---
+
+# Reachable Panics
+
+Panics are dangerous because they can lead to the unintended termination of the runtime, potentially jeopardizing the availability of the entire chain. For example, if a panic occurs in an `on_initialize` hook, it could disrupt the entire block processing, posing a serious threat to the chain's stability.
+
+Consider an XCM message that triggers a panic while being processed in the message queue. This panic can halt the parachain, preventing it from participating in the consensus process and disrupting the entire network.
+
+Take a defensive programming approach with the aim to keep your software functioning smoothly under unexpected conditions.
+
+:::warning Sometimes Panics Are Necessary
+
+High availability is important. However, integrity is more crucial, there are times when panics are unavoidable. 
+
+If this is the case, clearly document anything that can crash, similar to [Rust's standard documentation](https://doc.rust-lang.org/std/primitive.f64.html#method.clamp):
+
+```rust
+/// Restrict a value to a certain interval unless it is NaN.
+///
+/// # Panics
+///
+/// Panics if `min > max`, `min` is NaN, or `max` is NaN.
+pub fn clamp(mut self, min: f64, max: f64) -> f64 {
+    assert!(min <= max, "min > max, or either was NaN. min = {min:?}, max = {max:?}");
+    /// ...
+}
+```
+
+:::
+
+As there are many ways that a panic can be triggered, this category is divided into subcategories.
+
+## Subcategories
+
+### Array Panicking
+
+Using indices that are out of bounds when accessing, inserting, or removing elements can lead to panics. This can be exploited by attackers to disrupt the normal functioning of the system.
+
+```rust
+// Accessing element or slice with invalid indices
+let numbers = vec![1, 2, 3, 4, 5];
+let value = numbers[10]; // PANIC!
+let slice = &numbers[2..10]; // PANIC!
+// This is a non-exhaustive list of operations that can panic
+// Almost any operation that uses an index can panic if 
+// the index is out of bounds or invalid (e.g., -1).
+```
+
+#### Details
+
+- **Related Vulnerabilities**: [CWE-129: Improper Validation of Array Index](https://cwe.mitre.org/data/definitions/129.html)
+- **Components at Risk**: Any code that accesses, inserts, or removes elements from collections like slices, vectors, or arrays without proper index checks.
+
+#### Risks
+
+The primary risks include:
+
+- Unexpected termination of the runtime, leading to potential downtime.
+- Increased vulnerability to Denial of Service (DoS) attacks by exploiting out-of-bounds indexing.
+
+#### Mitigation
+
+To mitigate the risks associated with out-of-bounds indices:
+
+- Always validate indices before accessing, inserting, or removing elements from collections.
+- Implement proper error handling to manage invalid indices gracefully, without causing panics.
+
+```rust
+let numbers = vec![1, 2, 3, 4, 5];
+
+// Accessing elements with a invalid index
+let index = 10;
+let value = numbers.get(index).ok_or(IndexError::OutOfBounds)?;
+
+// Creating slices with a valid range
+let start = 2;
+let end = 10;
+let slice = if end <= numbers.len() {
+    &numbers[start..end]
+} else {
+    return Err(IndexError::OutOfBounds);
+};
+```
+
+By ensuring indices are valid and handling errors gracefully, you can prevent panics and enhance the stability and robustness of your code.
+
+### Unbounded Decoding
+
+Decoding objects without a nesting depth limit can lead to stack exhaustion, making it possible for attackers to craft highly nested objects that cause a stack overflow. This can be exploited to disrupt the normal functioning of the system.
+
+```rust
+    // Passing a highly nested call...
+    let call = <T as Config>::RuntimeCall::decode(&mut &call[..]) 
+        .map_err(|_| Error::<T>::UndecodableCall)?; // PANIC!
+    // Runtime crashes!
+```
+
+#### Details
+
+- **Related Vulnerabilities**: [CWE-674: Uncontrolled Recursion](https://cwe.mitre.org/data/definitions/674.html)
+- **Components at Risk**: Decoding mechanisms in blockchain systems, especially those that handle complex data structures without adequate depth control.
+
+#### Risks
+
+The primary risks include:
+
+- Stack exhaustion, which can lead to network instability and crashes.
+- Potential for Denial of Service (DoS) attacks by exploiting the stack overflow vulnerability.
+
+#### Mitigation
+
+To mitigate the risks associated with unbounded decoding:
+- Employ the `decode_with_depth_limit` method instead of the standard `decode` to limit the recursion depth.
+- Set the depth limit to a value lower than the threshold that can cause a stack overflow, ensuring safe operation under all conditions.
+
+```rust
+    // Passing a highly nested call...
+    let call = 
+        <T as Config>::RuntimeCall::decode_all_with_depth_limit(
+            sp_io::MAX_EXTRINSIC_DEPTH,
+            &mut &call[..],
+        ).map_err(|_| Error::<T>::UndecodableCall)?; // Just an error, no panic!
+    // Extrinsic execution fails but the runtime continues!
+```
+
+### Panicking Functions
+
+Functions that call `panic` or `unwrap` can cause runtime termination if they encounter unexpected conditions.
+
+Use the following (non-exhaustive) list of functions and macros from standard libraries to known what could potentially trigger a panic, so you can be cautious when using them:
+
+1. **Standard Library (`std`)**
+    - `panic!()`: Explicitly triggers a panic.
+    - `unwrap()`: Panics if the `Option` is `None` or the `Result` is `Err`.
+    - `expect()`: Similar to `unwrap()`, but allows for a custom panic message.
+    - `todo!()`: Panics indicating that the function is not yet implemented.
+    - `unreachable!()`: Panics when the code reaches a branch that should be impossible.
+    - `unimplemented!()`: Panics indicating that the function is not yet implemented.
+    - `assert!()`: Panics if the provided condition is false.
+    - `assert_eq!()`: Panics if the two provided expressions are not equal.
+    - `assert_ne!()`: Panics if the two provided expressions are equal.
+    - `slice::index()`: Panics if the index is out of bounds.
+    - `Vec::index()`: Panics if the index is out of bounds.
+    - `Vec::push()`: Panics if the capacity is exceeded.
+    - `Option::expect()`: Panics if the `Option` is `None`.
+    - `Result::expect()`: Panics if the `Result` is `Err`.
+    - `String::push_str()`: Panics if adding the string exceeds the capacity.
+
+2. **Common Libraries**
+    - **`serde_json`**:
+        - `from_str()`: Panics on invalid JSON input.
+    - **`regex`**:
+        - `Regex::new()`: Panics on invalid regular expression.
+
+These functions and macros should be used with care, as they can cause your program to stop unexpectedly. Use alternatives like `Result` or `Option` to handle errors gracefully whenever possible.
+
+#### Details
+
+- **Related Vulnerabilities**: [CWE-703: Improper Check or Handling of Exceptional Conditions](https://cwe.mitre.org/data/definitions/703.html)
+- **Components at Risk**: Any function that does not handle errors gracefully and relies on `panic` or `unwrap`.
+
+#### Risks
+
+- Termination of runtime leading to disruption in block processing.
+- Potential for attackers to exploit these functions to cause intentional disruptions.
+
+#### Mitigation
+
+- Avoid using functions that can panic in code, especially in critical functions.
+- Implement proper error handling to manage unexpected conditions gracefully.
+- When using operations that could panic: 
+    - Add a comment explaining why you are certain it won't panic. On handling options or results that need to be unwrapped but are known to be `Ok(_)` or `Some(_)`, with `expect`, do it with a clear messag such as "Q.E.D." that stands for "quod erat demonstrandum," meaning "which was to be demonstrated."
+    - Use defensive traits to handle errors more robustly. This will panic in testing, but log/throw errors in production.
+
+```rust
+// There is <good reasons> to believe this is `Some`.
+let y: Option<_> = ...;
+
+// The evidence shows clearty that this is `Some`.
+let x = y.expect("Hard evidence; qed");
+
+// If this is not `Some`, the default can be used...
+let x = y.unwrap_or(reasonable_default);
+
+// If this is not `Some`, an error can be thrown...
+let x = y.ok_or(Error::DefensiveError)?;
+
+// If this is not `Some`, the default can be used, but the error will be logged...
+let x = y.defensive_unwrap_or(reasonable_default);
+
+// If this is not `Some`, an error can be thrown, but the error will be logged...
+let x = y.defensive_ok_or(Error::DefensiveError)?;
+```
+
+This approach ensures safety by panicking when debug assertions are enabled (e.g., in tests) and logging errors in production.
+
+### Division by Zero
+
+Division by zero is a common runtime error that causes a panic. This can disrupt the normal functioning of the system and lead to unexpected crashes.
+
+```rust
+// Attempting to divide by zero...
+let divisor = 0;
+let result = 10 / divisor; // PANIC!
+// Runtime crashes!
+```
+
+#### Details
+
+- **Related Vulnerabilities**: [CWE-369: Divide By Zero](https://cwe.mitre.org/data/definitions/369.html)
+- **Components at Risk**: Any code performing division operations without checking if the divisor is zero.
+
+#### Risks
+
+The primary risks include:
+
+- Unexpected termination of the runtime, leading to potential downtime.
+- Increased vulnerability to Denial of Service (DoS) attacks by exploiting division by zero.
+
+#### Mitigation
+
+To mitigate the risks associated with division by zero:
+
+- Always check the divisor before performing a division operation.
+- Implement proper error handling to manage cases where the divisor is zero gracefully, without causing panics.
+
+```rust
+let numerator = 10;
+let divisor = 0;
+
+// Safely handle division by zero
+let result = if divisor != 0 {
+    Ok(numerator / divisor)
+} else {
+    Err(IndexError::OutOfBounds)
+}?;
+
+// Handle the error properly
+match result {
+    Ok(value) => println!("The result is: {}", value),
+    Err(e) => return Err(e),
+}
+```
+
+By ensuring the divisor is checked and handling errors gracefully, you can prevent panics and enhance the stability and robustness of your code.
+
+
+## Additional Resources
+
+- **Link to Official Documentation**: [Substrate Events and Errors](https://docs.substrate.io/build/events-and-errors/)
+
+## Case Studies
+
+### Whitelist Pallet
+
+#### Description
+
+In [Substrate #10159](https://github.com/paritytech/substrate/pull/10159), the `whitelist-pallet` was introduced, which includes the extrinsic `dispatch_whitelisted_call` that allows for the dispatch of a previously whitelisted call. However, decoding for this call was initially done using a method susceptible to stack overflow.
+
+The following code snippet demonstrates the vulnerable decoding mechanism in the `whitelist-pallet` in the `dispatch_whitelisted_call` extrinsic:
+
+```rust
+/// Remake of vulnerable whitelist pallet
+pub fn dispatch_whitelisted_call(
+    origin: OriginFor<T>,
+    call_hash: PreimageHash,
+    call_encoded_len: u32,
+    call_weight_witness: Weight,
+) -> DispatchResultWithPostInfo {
+    T::DispatchWhitelistedOrigin::ensure_origin(origin)?;
+
+    ensure!(
+        WhitelistedCall::<T>::contains_key(call_hash),
+        Error::<T>::CallIsNotWhitelisted,
+    );
+
+    let call = T::Preimages::fetch(&call_hash, Some(call_encoded_len))
+        .map_err(|_| Error::<T>::UnavailablePreImage)?;
+
+    let call = <T as Config>::RuntimeCall::decode(&mut &call[..])
+        .map_err(|_| Error::<T>::UndecodableCall)?;
+```
+
+This could be exploited with a highly nested call object to cause a stack overflow, leading to a denial of service attack.
+
+The following unit test demonstrates how to exploit the vulnerability:
+
+```rust
+/// Remake of vulnerable whitelist pallet
+#[test]
+fn test_unsafe_dispatch_whitelisted_call_stack_overflow() {
+ new_test_ext().execute_with(|| {
+  let mut call = 
+   RuntimeCall::System(
+    frame_system::Call::remark_with_event { remark: vec![1] }
+   );
+  let mut call_weight = call.get_dispatch_info().weight;
+  let mut encoded_call = call.encode();
+  let mut call_encoded_len = encoded_call.len() as u32;
+  let mut call_hash = <Test as frame_system::Config>::Hashing::hash(&encoded_call[..]);
+
+  // The amount of nested calls to create
+  // This test will not crash as it the following value is less than minimun
+  // amount of calls to cause a stack overflow
+  let nested_calls = sp_api::MAX_EXTRINSIC_DEPTH;
+
+  // The following line to get a stack overflow error on decoding (pallet)
+  let nested_calls = nested_calls*4;
+
+  // Create the nested calls
+  for _ in 0..=nested_calls {
+   call = RuntimeCall::Whitelist(crate::Call::dispatch_whitelisted_call_with_preimage {
+    call: Box::new(call.clone()),
+   });
+   call_weight = call.get_dispatch_info().weight;
+   encoded_call = call.encode();
+   call_encoded_len = encoded_call.len() as u32;
+   call_hash = <Test as frame_system::Config>::Hashing::hash(&encoded_call[..]);
+  }
+
+  // Whitelist the call to being able to dispatch it
+  assert_ok!(Preimage::note(encoded_call.into()));
+  assert_ok!(Whitelist::whitelist_call(RuntimeOrigin::root(), call_hash));
+
+  // Send the call to be dispatched
+  // This will throw a stack overflow if the nested calls is too high
+  println!("Dispatching with {} nested calls", nested_calls);
+  assert_ok!(
+   Whitelist::dispatch_whitelisted_call(
+    RuntimeOrigin::root(),
+    call_hash,
+    call_encoded_len,
+    call_weight
+   ),
+  );
+ });
+}
+```
+
+The solution is straightforward: replace the `decode` method with `decode_with_depth_limit` and set the depth limit to a safe value. The following code snippet demonstrates the updated decoding mechanism in the `whitelist-pallet`:
+
+```rust
+/// Remake of vulnerable whitelist pallet
+pub fn dispatch_whitelisted_call(
+    origin: OriginFor<T>,
+    call_hash: PreimageHash,
+    call_encoded_len: u32,
+    call_weight_witness: Weight,
+) -> DispatchResultWithPostInfo {
+    T::DispatchWhitelistedOrigin::ensure_origin(origin)?;
+
+    ensure!(
+        WhitelistedCall::<T>::contains_key(call_hash),
+        Error::<T>::CallIsNotWhitelisted,
+    );
+
+    let call = T::Preimages::fetch(&call_hash, Some(call_encoded_len))
+        .map_err(|_| Error::<T>::UnavailablePreImage)?;
+
+    let call = 
+        <T as Config>::RuntimeCall::decode_all_with_depth_limit(
+            sp_io::MAX_EXTRINSIC_DEPTH,
+            &mut &call[..],
+        ).map_err(|_| Error::<T>::UndecodableCall)?;
+```
+
+By setting the depth limit to `sp_io::MAX_EXTRINSIC_DEPTH`, the vulnerability is mitigated, and the system is protected from stack overflow attacks.

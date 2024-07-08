@@ -1,0 +1,151 @@
+---
+sidebar_position: 6
+slug: /storage-exhaustion
+---
+
+# Storage Exhaustion
+
+Your chain can run out of storage! Inadequate charging mechanisms for on-chain storage allow users to occupy space without paying appropriate deposit fees. This loophole can be exploited by malicious actors to fill up the blockchain storage cheaply, affecting network performance and making it unsustainable to run a node.
+
+## Details
+
+- **Related Vulnerabilities**: [CWE-770: Allocation of Resources Without Limits or Throttling](https://cwe.mitre.org/data/definitions/770.html)
+- **Components at Risk**: On-chain storage management systems, particularly those that do not properly manage storage deposits and allocations.
+
+## Risks
+
+The primary risks include:
+- Unsustainable growth in blockchain storage, leading to increased operational costs and potential node failure.
+- Increased susceptibility to DoS attacks that exploit the inadequate storage deposit mechanism to clutter the blockchain.
+
+## Mitigation
+
+Effective mitigation strategies should include:
+- **Existential Deposit**: Ensure it is valued similarly to that defined by the relay chain to optimize storage management.
+- **Storage Deposit**: Implement robust logic for storage deposit calculations and reservations to prevent abuse, as exemplified in the following Rust code snippet:
+
+```rust
+// Deposit calculation (bytes * deposit_per_byte + deposit_base)
+let mut deposit = T::DepositPerByte::get()
+        .saturating_mul(((key.len() + value.len()) as u32).into())
+        .saturating_add(T::DepositBase::get());
+
+// Deposit reserve (dynamic data size)
+if old_deposit.account.is_some() && 
+   old_deposit.account != Some(origin.clone()) {
+    T::Currency::unreserve(
+      &old_deposit.account.unwrap(), old_deposit.amount);
+    T::Currency::reserve(&origin, deposit)?;
+} else if deposit > old_deposit.amount {
+    T::Currency::reserve(&origin, deposit - old_deposit.amount)?;
+} else if deposit < old_deposit.amount {
+    T::Currency::unreserve(&origin, old_deposit.amount - deposit);
+}
+```
+
+Finally, remember that deposits should be returned when data is removed from the chain, promoting efficient storage usage, and limit the amount of data a pallet can store, or ensure sufficient friction (e.g. reserve deposits) is in place to manage storage usage.
+
+
+## Additional Resources
+
+- **Link to Official Documentation**: [Polkadot Wiki Existential Deposit](https://wiki.polkadot.network/docs/build-protocol-info#existential-deposit)
+- **Link to Official Documentation**: [Polkadot Wiki Other Resource Limitation Strategies](https://wiki.polkadot.network/docs/learn-transaction-fees#other-resource-limitation-strategies)
+
+## Case Studies
+
+### Existential Deposit
+
+If an account's balance falls below the existential deposit, it is reaped, and its data are deleted to save storage space. Existential deposits are essential for optimizing storage, but if undervalued, they can lead to DoS attacks.
+
+The following code snippet demonstrates the use of existential deposits in the Polkadot relay chain:
+
+```rust
+/// relay/polkadot/constants/src/lib.rs
+/// Money matters.
+pub mod currency {
+  pub const EXISTENTIAL_DEPOSIT: Balance = 100 * CENTS;
+  pub const UNITS: Balance = 10_000_000_000;
+  pub const DOLLARS: Balance = UNITS;
+  pub const CENTS: Balance = DOLLARS / 100;
+}
+
+/// relay/polkadot/src/lib.rs
+parameter_types! {
+  pub const ExistentialDeposit: Balance = EXISTENTIAL_DEPOSIT;
+}
+impl pallet_balances::Config for Runtime {
+  type ExistentialDeposit = ExistentialDeposit;
+}
+```
+
+### General Storage Usage System
+
+Polkadot SDK still doesn't have a standard storage deposit mechanism, issue that was raised in the following issue:
+
+<img src={require('./img/storage-exhaustion-general-storage-usage-system-issue.webp').default} alt="storage-exhaustion-general-storage-usage-system-issue" style={{borderRadius: "5px"}}/>
+
+<div style={{textAlign: "center", width: "100%"}}>
+[Issue in Polkadot SDK](https://github.com/paritytech/polkadot-sdk/issues/207)
+</div>
+
+For now, the best way to mitigate this issue is to implement a custom storage deposit mechanism in your runtime.
+
+### NFT Pallet Manual Deposit
+
+The NFT pallet was susceptible to storage spam through metadata manipulation due to insufficient initial deposit handling.
+
+The issue was resolved by adjusting the deposit calculations and validations to ensure that users are charged appropriately for the storage they consume.
+
+The following code snippet demonstrates the updated deposit calculation and reservation logic in the NFT pallet (after the fix):
+
+```rust
+/// substrate/frame/nfts/src/lib.rs
+/// ...
+/// Origin must be either `ForceOrigin` or Signed and the sender should be the Admin of the
+/// `collection`.
+///
+/// If the origin is Signed, then funds of signer are reserved according to the formula:
+/// `MetadataDepositBase + DepositPerByte * data.len` taking into
+/// account any already reserved funds.
+/// ...
+#[pallet::call_index(24)]
+#[pallet::weight(T::WeightInfo::set_metadata())]
+pub fn set_metadata(
+  origin: OriginFor<T>,
+  collection: T::CollectionId,
+  item: T::ItemId,
+  data: BoundedVec<u8, T::StringLimit>,
+) -> DispatchResult {
+  let maybe_check_origin = T::ForceOrigin::try_origin(origin)
+    .map(|_| None)
+    .or_else(|origin| ensure_signed(origin).map(Some).map_err(DispatchError::from))?;
+  Self::do_set_item_metadata(maybe_check_origin, collection, item, data, None)
+}
+
+/// substrate/frame/nfts/src/features/attributes.rs
+fn do_set_item_metadata {
+  /// ...
+  let mut deposit = Zero::zero();
+  if collection_config.is_setting_enabled(CollectionSetting::DepositRequired) 
+    // Next line was added to fix the issue 
+    || namespace != AttributeNamespace::CollectionOwner
+  {
+    deposit = T::DepositPerByte::get()
+      .saturating_mul(((data.len()) as u32).into())
+      .saturating_add(T::MetadataDepositBase::get());
+  }
+  
+  let depositor = maybe_depositor.clone().unwrap_or(collection_details.owner.clone());
+  let old_depositor = old_deposit.account.unwrap_or(collection_details.owner.clone());
+  
+  if depositor != old_depositor {
+    T::Currency::unreserve(&old_depositor, old_deposit.amount);
+    T::Currency::reserve(&depositor, deposit)?;
+  } else if deposit > old_deposit.amount {
+    T::Currency::reserve(&depositor, deposit - old_deposit.amount)?;
+  } else if deposit < old_deposit.amount {
+    T::Currency::unreserve(&depositor, old_deposit.amount - deposit);
+  }
+  /// ...
+}
+```
