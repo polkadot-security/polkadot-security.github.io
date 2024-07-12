@@ -6,7 +6,7 @@
 
 import 'dotenv/config';
 
-const serverUrl = process.env.SERVER_URL || "http://127.0.0.1:8000";
+const serverUrl = process.env.SERVER_URL;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -97,6 +97,7 @@ const config = {
           id: "login",
           label: "Login",
           position: "right",
+          class: `${!serverUrl ? "hidden" : ""}`,
         },
       ],
     },

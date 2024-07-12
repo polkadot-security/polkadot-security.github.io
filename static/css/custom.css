@@ -808,3 +808,5 @@ section,
 .section-icon {
   filter: opacity(0.1) drop-shadow(0 0 0 var(--ifm-color-primary)) drop-shadow(0 0 0 var(--ifm-color-primary)) drop-shadow(0 0 0 var(--ifm-color-primary)) drop-shadow(0 0 0 var(--ifm-color-primary)) drop-shadow(0 0 0 var(--ifm-color-primary)) drop-shadow(0 0 0 var(--ifm-color-primary));
 } 
+
+.hidden { display: none; }

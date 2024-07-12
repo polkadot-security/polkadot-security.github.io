@@ -17,4 +17,4 @@ This is a on-going effort to make the Polkadot ecosystem more secure. We are alw
 
 Everyone is welcome to contribute to the Polkadot Security Hub, so if you have any security-related content you would like to share, please feel free to [open an issue](https://github.com/polkadot-security/hub/issues) or submit a [pull request](https://github.com/polkadot-security/hub/pulls).
 
-Start by checking out the [all the resources available](/) now! 
+Start by checking out the [all the resources available](/) now!

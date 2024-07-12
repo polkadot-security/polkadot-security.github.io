@@ -37,7 +37,11 @@ export default function OSVTable() {
         console.error(`Error trying to fetch data: ${error}`);
       }
     };
-    fetchData();
+    if (serverUrl && serverUrl.length > 0) {
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   const columns = useMemo(
@@ -161,6 +165,11 @@ export default function OSVTable() {
     enableGlobalFilter: true,
     enableEditing: true,
     state: { isLoading },
+    renderEmptyRowsFallback: () => (
+      <Stack align="center" justify="center" style={{ height: "100%" }}>
+        <Title order={5}>No disclosures available yet! Check again soon...</Title>
+      </Stack>
+    ),
     renderEditRowModalContent: ({ table, row, internalEditComponents }) => (
       <Stack>
         <Title order={3}>{row.original.database_specific.title}</Title>
