@@ -29,7 +29,7 @@ export default function Sections() {
 
   return (
     <Grid align="center">
-      <Grid.Col span={6}>
+      <Grid.Col base={12} sm={6}>
         <Item
           href={"detect"}
           imageSrc="img/detect.png"
@@ -38,7 +38,7 @@ export default function Sections() {
           Detect
         </Item>
       </Grid.Col>
-      <Grid.Col span={6}>
+      <Grid.Col base={12} sm={6}>
         <Item
           href={"docs/protect/"}
           imageSrc="img/protect.png"
