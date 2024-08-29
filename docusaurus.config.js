@@ -72,12 +72,18 @@ const config = {
       },
       items: [
         {
+          to: "docs/identify",
+          sidebarId: "protectSidebar",
+          position: "right",
+          label: "Identify",
+        },
+        {
           to: "detect",
           position: "right",
           label: "Detect",
         },
         {
-          type: "docSidebar",
+          to: "docs/protect",
           sidebarId: "protectSidebar",
           position: "right",
           label: "Protect",
