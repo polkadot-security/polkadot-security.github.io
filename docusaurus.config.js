@@ -61,7 +61,9 @@ const config = {
       }),
     ],
   ],
-
+  scripts: [
+    'https://apisa.parity.io/latest.js'
+  ],
   themeConfig: {
     image: "img/favicon.ico",
     navbar: {
