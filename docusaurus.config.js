@@ -6,7 +6,7 @@
 
 import 'dotenv/config';
 
-const serverUrl = process.env.SERVER_URL;
+const serverUrl = process.env.SERVER_URL || 'https://polkadot-security.parity.io';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {

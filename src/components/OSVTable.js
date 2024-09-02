@@ -7,20 +7,22 @@ import {
 } from "mantine-react-table";
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-export const streaming = true;
-
 export default function OSVTable() {
   const {
     siteConfig: { customFields: { serverUrl }},
   } = useDocusaurusContext();
   const [osv, setOsv] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const resp = await fetch(`${serverUrl}/osv/data`);
+        const resp = await fetch(`${serverUrl}/detect/osv`, {
+          credentials: 'include'
+        });
         const body = await resp.json();
         console.log(body);
         if (
@@ -43,6 +45,32 @@ export default function OSVTable() {
       setIsLoading(false);
     }
   }, []);
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${serverUrl}/login`);
+
+      if (!response.ok) {
+        setError(true);
+        return
+      }
+
+      // Assuming the response includes a redirection URL on success
+      const data = await response.json();
+      console.log(data)
+      setAuthenticated(true)
+
+      // Redirecting to the provided URL on successful authentication
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No redirect URL provided');
+      }
+    } catch (err) {
+      console.log(err)
+      setError(true)
+    }
+  }
 
   const columns = useMemo(
     () => [
@@ -197,5 +225,11 @@ export default function OSVTable() {
     },
   });
 
-  return <MantineReactTable table={table}></MantineReactTable>;
+  return (
+    <>
+      {!authenticated && <button onClick={handleLogin}>Login</button>}
+      {error && <p>Something went wrong :/</p>}
+      {authenticated && <MantineReactTable table={table}></MantineReactTable>}
+    </>
+  );
 }
