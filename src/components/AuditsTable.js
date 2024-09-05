@@ -100,7 +100,7 @@ export default function AuditsTable() {
       ],
       pagination: {
         pageIndex: 0,
-        pageSize: 50,
+        pageSize: 100,
       },
     },
     renderEmptyRowsFallback: () => (
