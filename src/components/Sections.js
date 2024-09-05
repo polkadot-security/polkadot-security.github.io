@@ -40,7 +40,7 @@ export default function Sections() {
       </Grid.Col>
       <Grid.Col base={12} sm={6}>
         <Item
-          href={"detect"}
+          href={"docs/detect"}
           imageSrc="img/detect.png"
           description="Take a look at the latest vulnerabilities disclosures so you can detect them in your system."
         >

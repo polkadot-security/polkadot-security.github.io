@@ -6,6 +6,7 @@ import {
   MRT_EditActionButtons,
 } from "mantine-react-table";
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { MantineProvider } from "./MantineProvider";
 
 export default function OSVTable() {
   const {
@@ -229,7 +230,7 @@ export default function OSVTable() {
     <>
       {!authenticated && <button onClick={handleLogin}>Login</button>}
       {error && <p>Something went wrong :/</p>}
-      {authenticated && <MantineReactTable table={table}></MantineReactTable>}
+      {authenticated && <MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
     </>
   );
 }

@@ -6,6 +6,7 @@ import {
 } from "mantine-react-table";
 import Papa from 'papaparse';
 import { format, parse } from 'date-fns';
+import { MantineProvider } from './MantineProvider';
 
 export default function AuditsTable() {
   const [audits, setAudits] = useState([]);
@@ -109,5 +110,5 @@ export default function AuditsTable() {
     ),
   });
 
-  return <MantineReactTable table={table} />;
+  return <MantineProvider><MantineReactTable table={table} /></MantineProvider>;
 }
