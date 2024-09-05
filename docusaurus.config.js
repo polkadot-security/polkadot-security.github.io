@@ -80,7 +80,7 @@ const config = {
           label: "Identify",
         },
         {
-          to: "detect",
+          to: "docs/detect",
           position: "right",
           label: "Detect",
         },

@@ -1,0 +1,44 @@
+Firm,Project,Date,URL
+Runtime Verification,HydraDX,19/11/2022,https://github.com/galacticcouncil/HydraDX-security/blob/main/audit-reports/220907-Runtime-Verification-Omnipool-Security-Audit.pdf
+Runtime Verification,HydraDX,19/06/2023,https://github.com/galacticcouncil/HydraDX-security/blob/main/audit-reports/230619-Runtime-Verification-EMA-Oracle-Security-Audit.pdf
+Runtime Verification,HydraDX,24/07/2023,https://github.com/galacticcouncil/HydraDX-security/blob/main/audit-reports/230724-Runtime-Verification-Stableswap-Security-Audit.pdf
+Halborn,Nodle Nodl,14/02/2022,https://github.com/HalbornSecurity/PublicReports/blob/master/Substrate%20Audits/Nodle_Nodl_Substrate_Pallet_Security_Audit_Report_Halborn_Final.pdf
+Halborn,Polygon Avail,20/06/2022,https://github.com/HalbornSecurity/PublicReports/blob/master/Substrate%20Audits/Polygon_Avail_Substrate_Pallet_Security_Audit_Report_Halborn_Final.pdf
+Halborn,Reef,23/07/2021,https://github.com/HalbornSecurity/PublicReports/blob/master/Substrate%20Audits/Reef_Chain_Substrate_Security_Audit_Report_Halborn_v1_1.pdf
+Informal Systems,Interlay,17/09/2021,https://github.com/informalsystems/audits/blob/main/Interlay/informal-report-interlay-audit-2021Q2.pdf
+Informal Systems,Interlay,21/09/2021,https://github.com/informalsystems/audits/blob/main/Interlay/informal-report-interlay-audit-2021Q3.pdf
+Trail of Bits,Acala,16/02/2021,https://github.com/AcalaNetwork/Acala/blob/master/audit/Acala%20Network%20-%20Final%20Report.pdf
+SRLabs,Acala,29/09/2023,https://github.com/AcalaNetwork/Acala/blob/master/audit/SRL-Acala-2023-Audit.pdf
+SRLabs,Acala,19/09/2022,https://github.com/AcalaNetwork/Acala/blob/master/audit/SRL-Acala-PR2341-report-online-v1.1.pdf
+SRLabs,Acala,12/02/2022,https://github.com/AcalaNetwork/Acala/blob/master/audit/SRL_Acala-review-2021-12-public.pdf
+SRLabs,Acala,22/10/2020,https://github.com/AcalaNetwork/Acala/blob/master/audit/SRL_Acala-review-online-public.pdf
+SlowMist,Acala,11/08/2020,https://github.com/AcalaNetwork/Acala/blob/master/audit/SlowMist%20-%20Acala%20Security%20Audit%20Report%20-%202020.pdf
+SlowMist,Acala,24/09/2021,https://github.com/AcalaNetwork/Acala/blob/master/audit/SlowMist%20-%20Acala%20Security%20Audit%20Report%20-%202021.pdf
+Halborn,ComposableFi,28/02/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20210229-pallets-core.pdf
+Halborn,ComposableFi,30/07/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20220730-pallets-pabloV2.pdf
+Halborn,ComposableFi,23/08/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20220823-pallet-vesting.pdf
+Halborn,ComposableFi,26/09/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20220926-pallet-byog.pdf
+Halborn,ComposableFi,03/10/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20221003-pallet-grandpa-light-client-bridge.pdf
+Halborn,ComposableFi,10/10/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20221010-pallet-ibc.pdf
+Halborn,ComposableFi,29/11/2022,https://github.com/ComposableFi/composable/blob/main/audits/halborn/audit20221129-pallet-pablo-refactoring.pdf
+Trail of Bits,Parallel Finance,07/12/2022,https://github.com/trailofbits/publications/blob/master/reviews/ParallelFinance3.pdf
+Trail of Bits,Parallel Finance,16/11/2022,https://github.com/trailofbits/publications/blob/master/reviews/ParallelFinance2.pdf
+Trail of Bits,Parallel Finance,15/03/2022,https://github.com/trailofbits/publications/blob/master/reviews/ParallelFinance.pdf
+Trail of Bits,AlephBFT,21/06/2021,https://github.com/trailofbits/publications/blob/master/reviews/AlephBFT.pdf
+Halborn,Parallel Finance,29/04/2022,https://github.com/parallel-finance/auditing-report/blob/main/Halborn_Parallel_fi_Loans_Pallet_Substrate_Pallet_Security_Audit_Report_Final.pdf
+SlowMist,Parallel Finance,01/06/2021,https://github.com/parallel-finance/auditing-report/blob/main/Slow%20Mist%20-%20Parallel%20Security%20Audit%20Report.pdf
+SlowMist,Bitfrost,15/11/2021,https://github.com/zenlinkpro/zenlink-security-audit/blob/master/substrate/SlowMist%20Audit%20Report%20-%20Bifrost.pdf
+PeckShield,Zenlink,24/08/2022,https://github.com/zenlinkpro/zenlink-security-audit/blob/master/substrate/PeckShield-Audit-Report-ZenlinkDex-v1.0.pdf
+Halborn,Manta,25/04/2023,https://github.com/Manta-Network/Atlantic-Audits/blob/main/Atlantic-Halborn-zkSBT.pdf
+Veridise,Manta,28/04/2023,https://github.com/Manta-Network/Atlantic-Audits/blob/main/Atlantic-Veridise-Chain.pdf
+Veridise,Manta,05/05/2023,https://github.com/Manta-Network/Atlantic-Audits/blob/main/Atlantic-Veridise-zkSBT.pdf
+SRLabs,Centrifuge,03/11/2023,https://github.com/centrifuge/security/blob/main/audits/liquidity-pools/2023-09-SRLabs.pdf
+SRLabs,Centrifuge,05/09/2022,https://github.com/centrifuge/security/blob/main/audits/chain/SRLabs-baseline-report_2022.pdf
+Least Authority,Centrifuge,03/04/2020,https://github.com/centrifuge/security/blob/main/audits/chain/LA-Centrifuge-Chain.pdf
+Censensys Diligence,Centrifuge,01/05/2020,https://github.com/centrifuge/security/blob/main/audits/chain/chainbridge-audit-2020-04.pdf
+OAK Security,Bitfrost,11/03/2024,https://github.com/oak-security/audit-reports/blob/main/Bifrost/2024-03-11%20Audit%20Report%20-%20Bifrost%20Finance%20Leveraged%20Staking%20v1.0.pdf
+OAK Security,Snowbridge,12/02/2024,https://github.com/oak-security/audit-reports/blob/main/Snowbridge/2024-02-12%20Audit%20Report%20-%20Snowbridge%20Extension%20v1.1.pdf
+OAK Security,Snowbridge,24/05/2024,https://github.com/oak-security/audit-reports/blob/main/Snowbridge/2024-05-24%20Audit%20Report%20-%20Snowbridge%20v1.1.pdf
+OAK Security,Starlay,06/03/2024,https://github.com/oak-security/audit-reports/blob/main/Starlay/2024-03-06%20Audit%20Report%20-%20Starlay%20Protocol%20Wasm%20v1.0.pdf
+SRLabs,OZ Runtimes,07/01/2024,
+SRLabs,OZ Runtimes,04/01/2024,https://github.com/OpenZeppelin/polkadot-runtime-templates/blob/main/audits/2024-04.pdf
