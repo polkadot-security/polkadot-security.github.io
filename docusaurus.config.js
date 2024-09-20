@@ -40,6 +40,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: '/',
           editUrl: ({ docPath }) =>
             `https://github.com/polkadot-security/hub/edit/main/docs/${docPath}`,
           sidebarPath: "./sidebars.js",
@@ -74,18 +75,18 @@ const config = {
       },
       items: [
         {
-          to: "docs/identify",
+          to: "identify",
           sidebarId: "protectSidebar",
           position: "right",
           label: "Identify",
         },
         {
-          to: "docs/detect",
+          to: "detect",
           position: "right",
           label: "Detect",
         },
         {
-          to: "docs/protect",
+          to: "protect",
           sidebarId: "protectSidebar",
           position: "right",
           label: "Protect",
@@ -100,6 +101,7 @@ const config = {
           label: "GitHub",
           position: "right",
         },
+        /*
         {
           href: `${serverUrl}/login`,
           id: "login",
@@ -107,6 +109,7 @@ const config = {
           position: "right",
           class: `${!serverUrl ? "hidden" : ""}`,
         },
+        */
       ],
     },
     footer: {

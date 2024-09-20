@@ -21,20 +21,19 @@ export default function OSVTable() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const resp = await fetch(`${serverUrl}/detect/osv`, {
-          credentials: 'include'
+        const resp = await fetch(`${serverUrl}/detect/vulnerabilities`, {
+          /*credentials: 'include'*/
         });
         const body = await resp.json();
-        console.log(body);
         if (
           !resp.ok ||
-          body.data === null ||
-          body.data === undefined ||
-          typeof body.data !== "object"
+          body.vulns === null ||
+          body.vulns === undefined ||
+          typeof body.vulns !== "object"
         ) {
           throw new Error(body.message);
         }
-        setOsv(body.data);
+        setOsv(body.vulns);
         setIsLoading(false);
       } catch (error) {
         console.error(`Error trying to fetch data: ${error}`);
@@ -210,7 +209,7 @@ export default function OSVTable() {
     ),
     initialState: {
       columnVisibility: {
-        severity: false,
+        severity: true,
         osv_id: false,
         osv_type: false,
         discovery_method: false,
@@ -228,9 +227,10 @@ export default function OSVTable() {
 
   return (
     <>
-      {!authenticated && <button onClick={handleLogin}>Login</button>}
-      {error && <p>Something went wrong :/</p>}
-      {authenticated && <MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
+      {/*!authenticated && <button onClick={handleLogin}>Login</button>*/}
+      {/*error && <p>Something went wrong :/</p>*/}
+      {/*authenticated && <MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>*/}
+      {<MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
     </>
   );
 }

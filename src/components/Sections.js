@@ -33,7 +33,7 @@ export default function Sections() {
       <Grid align="center">
         <Grid.Col base={12} sm={6}>
           <Item
-            href={"docs/identify"}
+            href={"identify"}
             imageSrc="img/identify.png"
             description="Identify the main assets and the potential threats to them."
           >
@@ -42,7 +42,7 @@ export default function Sections() {
         </Grid.Col>
         <Grid.Col base={12} sm={6}>
           <Item
-            href={"docs/detect"}
+            href={"detect"}
             imageSrc="img/detect.png"
             description="Take a look at the latest vulnerabilities disclosures so you can detect them in your system."
           >
@@ -51,7 +51,7 @@ export default function Sections() {
         </Grid.Col>
         <Grid.Col base={12} sm={12}>
           <Item
-            href={"docs/protect/"}
+            href={"protect"}
             imageSrc="img/protect.png"
             long
             description="Learn about common types of vulnerabilities that exist and how to protect against them."
