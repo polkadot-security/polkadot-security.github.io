@@ -80,7 +80,7 @@ export default function OSVTable() {
         accessorKey: "database_specific.title",
         id: "title",
         Cell({ cell }) {
-          return <b>{cell.getValue()}</b>;
+          return <b><ReactMarkdown>{cell.getValue()}</ReactMarkdown></b>;
         },
         Edit: () => null,
       },
@@ -201,7 +201,11 @@ export default function OSVTable() {
       <Modal
         opened={table.getState().editingRow !== null}
         onClose={() => table.setEditingRow(null)}
-        title={<Title order={3}>{row.original.database_specific.title}</Title>}
+        title={<Title order={3}>
+          <ReactMarkdown>
+            {row.original.database_specific.title}
+          </ReactMarkdown>
+          </Title>}
       >
         <Stack spacing="md">
           <Group position="start">
@@ -228,9 +232,9 @@ export default function OSVTable() {
             <Text>{formatDate(row.original.database_specific.discovery_date) || 'N/A'}</Text>
           </Group>
 
-          <Group spacing="xs" align="flex-start">
+          <Group spacing="xs" align="flex">
             <IconVersions size={20} style={{ marginTop: '5px' }} />
-            <Text weight={700}>Affected Versions</Text>
+            <Text weight={700}>Affected Versions{row.original.affected?.[0]?.versions?.length < 5 && ':'}</Text>
             <Group spacing="xs">
               {row.original.affected?.[0]?.versions?.map((version, index) => (
                 <Badge key={index} size="sm">{version}</Badge>
@@ -261,16 +265,26 @@ export default function OSVTable() {
           <Group spacing="xs">
             <IconFileCheck size={20} />
             <Text weight={700}>Mitigation</Text>
-            <Badge size="lg" color={row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "green" : "red"}>
-              {row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "Fix Available" : "No Fix Available"}
-            </Badge>
+            <a href={row.original.references.find(ref => ref.type == "FIX")?.url}>
+              <Badge size="lg" color={row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "green" : "red"}>
+                {row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "Fix Available Here" : "No Fix Available"}
+              </Badge>
+            </a>
+            {
+              row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed &&
+                'upgrade to'
+            }
+            {
+              row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed &&
+                <Badge size="lg">{row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed}</Badge>
+            }
             <Paper>
               <ReactMarkdown>
                 {
                   row.original.affected?.[0]?.database_specific?.mitigation ?
                     `${row.original.affected?.[0]?.database_specific?.mitigation}
                      ${row.original.affected?.[0]?.database_specific?.eta ? `\n\n**ETA**: ${row.original.affected?.[0]?.database_specific?.eta}` : ''}` :
-                    'No mitigation information available.'
+                    'No mitigation details available at this time. Please check back later.'
                 }
               </ReactMarkdown>
             </Paper>
