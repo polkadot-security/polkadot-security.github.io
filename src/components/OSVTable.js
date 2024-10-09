@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Badge, Button, Flex, Title, Stack, Textarea } from "@mantine/core";
+import { Badge, Button, Title, Stack, Modal, Text, Group, List, Divider, Paper } from "@mantine/core";
+import { IconFileCheck, IconFileDatabase, IconNotebook, IconCalendar, IconBug, IconVersions, IconLink, IconFileDescription } from '@tabler/icons-react';
 import {
   MantineReactTable,
   useMantineReactTable,
-  MRT_EditActionButtons,
 } from "mantine-react-table";
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import ReactMarkdown from 'react-markdown';
 import { MantineProvider } from "./MantineProvider";
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export default function OSVTable() {
   const {
-    siteConfig: { customFields: { serverUrl }},
+    siteConfig: { customFields: { serverUrl } },
   } = useDocusaurusContext();
   const [osv, setOsv] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,8 +95,11 @@ export default function OSVTable() {
         accessorFn: (dataRow) =>
           (dataRow.affected &&
             dataRow.affected[0]?.severity &&
-            dataRow.affected[0]?.severity[0]?.scope) ||
+            dataRow.affected[0]?.severity[0]?.score) ||
           "",
+        Cell({ cell }) {
+          return <Badge color={getSeverityColor(cell.getValue())}>{cell.getValue()}</Badge>;
+        },
       },
       {
         header: "Affected System",
@@ -116,6 +120,11 @@ export default function OSVTable() {
         header: "Discovery Date",
         accessorKey: "database_specific.discovery_date",
         id: "discovery_date",
+      },
+      {
+        header: "Mitigation",
+        accessorKey: "database_specific.mitigation",
+        id: "mitigation",
       },
       {
         header: "Fixed",
@@ -142,25 +151,16 @@ export default function OSVTable() {
             dataRow.affected[0]?.versions &&
             dataRow.affected[0]?.versions.join("\n")) ||
           "",
-        Edit: ({ cell }) => (
-          <Textarea
-            autosize
-            label="Affected Versions"
-            value={cell.getValue()}
-          />
-        ),
       },
       {
         header: "Summary",
         accessorKey: "summary",
         id: "summary",
-        Edit: ({ cell }) => <Textarea autosize>{cell.getValue()}</Textarea>,
       },
       {
         header: "Details",
         accessorKey: "details",
         id: "details",
-        Edit: ({ cell }) => <Textarea autosize>{cell.getValue()}</Textarea>,
       },
       {
         header: "Modified",
@@ -180,7 +180,6 @@ export default function OSVTable() {
             <Button onClick={() => table.setEditingRow(row)}>Details</Button>
           );
         },
-        Edit: () => null,
       },
     ],
     [],
@@ -199,13 +198,106 @@ export default function OSVTable() {
       </Stack>
     ),
     renderEditRowModalContent: ({ table, row, internalEditComponents }) => (
-      <Stack>
-        <Title order={3}>{row.original.database_specific.title}</Title>
-        {internalEditComponents}
-        <Flex justify="flex-end" mt="xl">
-          <MRT_EditActionButtons variant="text" table={table} row={row} />
-        </Flex>
-      </Stack>
+      <Modal
+        opened={table.getState().editingRow !== null}
+        onClose={() => table.setEditingRow(null)}
+        title={<Title order={3}>{row.original.database_specific.title}</Title>}
+      >
+        <Stack spacing="md">
+          <Group position="start">
+            <Badge size="lg" color="blue">{row.original.id}</Badge>
+            <Badge size="lg" color={getSeverityColor(row.original.affected?.[0]?.severity?.[0]?.score)}>
+              Severity: {row.original.affected?.[0]?.severity?.[0]?.score || 'N/A'}
+            </Badge>
+            <Badge size="lg" color={row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "green" : "red"}>
+              {row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "Fix Available" : "No Fix Available"}
+            </Badge>
+          </Group>
+
+          <Divider my="sm" />
+
+          <Group spacing="xs">
+            <IconBug size={20} />
+            <Text weight={700}>Affected System:</Text>
+            <Text>{row.original.database_specific.affected_system}</Text>
+          </Group>
+
+          <Group spacing="xs">
+            <IconCalendar size={20} />
+            <Text weight={700}>Discovery Date:</Text>
+            <Text>{formatDate(row.original.database_specific.discovery_date) || 'N/A'}</Text>
+          </Group>
+
+          <Group spacing="xs" align="flex-start">
+            <IconVersions size={20} style={{ marginTop: '5px' }} />
+            <Text weight={700}>Affected Versions</Text>
+            <Group spacing="xs">
+              {row.original.affected?.[0]?.versions?.map((version, index) => (
+                <Badge key={index} size="sm">{version}</Badge>
+              )) || <Text>N/A</Text>}
+            </Group>
+          </Group>
+
+          <Group spacing="xs">
+            <IconFileDescription size={20} />
+            <Text weight={700}>Summary</Text>
+            <Paper>
+              <ReactMarkdown>
+                {row.original.summary}
+              </ReactMarkdown>
+            </Paper>
+          </Group>
+
+          <Group spacing="xs">
+            <IconFileDatabase size={20} />
+            <Text weight={700}>Details</Text>
+            <Paper>
+              <ReactMarkdown>
+                {row.original.details}
+              </ReactMarkdown>
+            </Paper>
+          </Group>
+
+          <Group spacing="xs">
+            <IconFileCheck size={20} />
+            <Text weight={700}>Mitigation</Text>
+            <Badge size="lg" color={row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "green" : "red"}>
+              {row.original.affected?.[0]?.ranges?.[0]?.events.find(event => event.fixed)?.fixed ? "Fix Available" : "No Fix Available"}
+            </Badge>
+            <Paper>
+              <ReactMarkdown>
+                {
+                  row.original.affected?.[0]?.database_specific?.mitigation ?
+                    `${row.original.affected?.[0]?.database_specific?.mitigation}
+                     ${row.original.affected?.[0]?.database_specific?.eta ? `\n\n**ETA**: ${row.original.affected?.[0]?.database_specific?.eta}` : ''}` :
+                    'No mitigation information available.'
+                }
+              </ReactMarkdown>
+            </Paper>
+          </Group>
+
+          {row.original.references && (
+            <Stack spacing="xs">
+              <Group spacing="xs">
+                <IconNotebook size={20} />
+                <Text weight={700}>References</Text>
+              </Group>
+              <List
+                spacing="xs"
+                size="sm"
+                center
+                icon={<IconLink size={16} />}
+              >
+                {row.original.references.map((ref, index) => (
+                  <List.Item key={index}>
+                    <a href={ref.url} target="_blank" rel="noopener noreferrer">{ref.url}</a>
+                  </List.Item>
+                ))}
+              </List>
+            </Stack>
+          )}
+        </Stack>
+      </Modal>
     ),
     initialState: {
       columnVisibility: {
@@ -219,6 +311,7 @@ export default function OSVTable() {
         details: false,
         modified: false,
         published: false,
+        mitigation: false,
         "mrt-row-actions": false,
         "mrt-row-expand": false,
       },
@@ -233,4 +326,22 @@ export default function OSVTable() {
       {<MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
     </>
   );
+}
+
+// Helper function to determine severity color
+function getSeverityColor(score) {
+  if (!score) return 'gray';
+  if (score == "Critical") return 'red';
+  const numScore = parseFloat(score);
+  if (numScore >= 9) return 'red';
+  if (numScore >= 7) return 'orange';
+  if (numScore >= 4) return 'yellow';
+  return 'green';
+}
+
+// Helper function to format dates
+function formatDate(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
