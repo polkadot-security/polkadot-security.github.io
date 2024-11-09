@@ -1,0 +1,92 @@
+---
+slug: /tools
+---
+
+# Security Tools & Testing Infrastructure
+
+This section covers the various tools and infrastructure available for securing and testing your Polkadot/Substrate-based system. These tools help catch issues early, validate functionality, and ensure system security.
+
+## Supply Chain Management
+
+- [**PSVM**](/psvm) - A tool for managing your Polkadot dependencies in a precise and secure way.
+- [**Cargo Vet**](https://github.com/mozilla/cargo-vet) - A tool for auditing your Cargo.toml file to check if your dependencies are audited.
+- [**Cargo Audit**](https://github.com/rustsec/cargo-audit) - A tool for auditing your Cargo.lock file to check if your dependencies have any known vulnerabilities.
+
+## Static Analysers
+
+Static analysis tools help catch common issues and enforce best practices without running the code:
+
+- [**Clippy**](https://github.com/rust-lang/rust-clippy) - The official Rust linter that catches common mistakes and suggests improvements. Includes specific lints for Substrate/Polkadot development.
+- [**Dylint**](https://github.com/trailofbits/dylint) - A tool for running custom Rust lints, including specialized ones for runtime development and common security pitfalls.
+
+## Unit Testing
+
+Tools for testing individual components in isolation:
+
+- [**XCM Simulator**](https://github.com/paritytech/polkadot-sdk/tree/master/polkadot/xcm/xcm-simulator) - Test cross-chain message passing logic in a controlled environment without full network setup.
+- [**Nextest**](https://github.com/nextest-rs/nextest) - A modern, fast test runner for Rust with improved parallel test execution and better reporting.
+
+## Integration Testing
+
+For testing multiple components working together:
+
+- [**XCM Emulator**](https://github.com/paritytech/polkadot-sdk/tree/master/cumulus/xcm/xcm-emulator) - Test cross-chain XCM interactions between multiple parachains and relay chains in a simulated environment.
+- [**Try Runtime**](https://github.com/paritytech/try-runtime-cli) - Test runtime upgrades and state transitions against real chain state without affecting the live network.
+
+## Fuzzing
+
+Automated testing tools that generate random inputs to find edge cases and vulnerabilities:
+
+- [**Substrate Runtime Fuzzer**](https://github.com/paritytech/substrate-runtime-fuzzer) - Integrate your runtime, and test everything at once.Supports multiple fuzzing engines:
+  - AFL (American Fuzzy Lop) - Traditional coverage-guided fuzzing
+  - Honggfuzz - Modern, multi-threaded fuzzing with hardware support
+
+Find more information in the [Fuzzing](/fuzzing) section.
+
+## E2E Testing
+
+End-to-end testing tools for validating full system behavior:
+
+- [**Zombienet**](https://github.com/paritytech/zombienet) - A testing framework for spawning and testing Polkadot/Substrate networks, with SDK support for custom test scenarios.
+- [**Zombienet SDK**](https://github.com/paritytech/zombienet-sdk) - A library for building custom test scenarios for Zombienet in Rust.
+- [**Chopsticks**](https://github.com/AcalaNetwork/chopsticks) - A mock execution environment for testing parachain logic against real network state.
+
+## Testnets
+
+Public test networks for safely deploying and validating changes:
+
+- **Rococo** - The primary testnet for parachain teams, featuring regular resets and testing slots.
+- **Westend** - Long-running testnet that mirrors Polkadot's configuration, ideal for validator testing.
+- **Paseo** - Specialized testnet for testing specific features or scenarios.
+
+## Canary Network
+
+Production environment for early detection of issues:
+
+- **Kusama** - The canary network for Polkadot, running new features in a real economic environment.
+
+## When to use each tool
+
+Use this dependencies to tackle [common vulnerabilities](/top) following this table as a guide:
+
+| Vulnerability                 | Tools / Recommended                  |
+|-------------------------------|--------------------------------------|
+| 1. Insecure Benchmarking      | Fuzzing, E2E,Testnets, Canary Networks                   |
+| 2. Runtime Misconfiguration    | Integration Testing, Fuzzing, E2E, Testnets, Canary Networks             |
+| 3. Insecure Randomness         | E2E, Testnets, Canary Networks                    |
+| 4. Unsafe Math                 | All (Using Release Build) / **Fuzzing**   |
+| 5. Reachable Panics            | All (Using Release Build) / **Fuzzing**   |
+| 6. Storage Exhaustion          | All Tools Mentioned Before       |
+| 7. Replay Issues               | All Tools Mentioned Before       |
+| 8. Outdated Crates             | All (Partially / Limited Scope) / **Supply Chain Management**     |
+| 9. Data Mishandling            | All Tools Mentioned Before       |
+| 10. Inconsistent Error Handling | All Tools Mentioned Before       |
+
+## Additional Resources
+
+For detailed guides on using these tools, see the individual tool documentation in the following sections.
+
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />
+

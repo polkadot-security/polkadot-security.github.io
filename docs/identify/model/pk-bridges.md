@@ -1,3 +1,7 @@
+---
+slug: /pk-bridge-model
+---
+
 # Polkadot / Kusama Bridge Threat Model
 
 ## Executive Summary

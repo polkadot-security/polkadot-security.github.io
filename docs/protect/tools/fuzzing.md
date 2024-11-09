@@ -1,3 +1,7 @@
+---
+slug: /fuzzing
+---
+
 # Fuzzing
 
 Fuzzing is an advanced software testing technique designed to uncover coding mistakes and security flaws. Fuzzers are automated tools that generate and input a wide range of data into a program, seeking to trigger crashes or other unexpected behaviors that may indicate underlying issues.
