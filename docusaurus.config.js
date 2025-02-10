@@ -101,7 +101,6 @@ const config = {
           label: "GitHub",
           position: "right",
         },
-        /*
         {
           href: `${serverUrl}/login`,
           id: "login",
@@ -109,7 +108,6 @@ const config = {
           position: "right",
           class: `${!serverUrl ? "hidden" : ""}`,
         },
-        */
       ],
     },
     footer: {

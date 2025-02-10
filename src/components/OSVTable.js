@@ -23,7 +23,7 @@ export default function OSVTable() {
       setIsLoading(true);
       try {
         const resp = await fetch(`${serverUrl}/detect/vulnerabilities`, {
-          /*credentials: 'include'*/
+          credentials: 'include'
         });
         const body = await resp.json();
         if (
@@ -334,9 +334,9 @@ export default function OSVTable() {
 
   return (
     <>
-      {/*!authenticated && <button onClick={handleLogin}>Login</button>*/}
-      {/*error && <p>Something went wrong :/</p>*/}
-      {/*authenticated && <MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>*/}
+      {!authenticated && <button onClick={handleLogin}>Login</button>}
+      {error && <p>Something went wrong :/</p>}
+      {authenticated && <MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
       {<MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
     </>
   );
