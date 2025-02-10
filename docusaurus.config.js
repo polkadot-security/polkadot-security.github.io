@@ -106,6 +106,7 @@ const config = {
           id: "login",
           label: "Login",
           position: "right",
+          target: '_self',
           class: `${!serverUrl ? "hidden" : ""}`,
         },
       ],
