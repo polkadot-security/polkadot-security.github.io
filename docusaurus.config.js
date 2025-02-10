@@ -14,7 +14,7 @@ const config = {
   title: "Polkadot Security Hub",
   tagline: "Polkadot Security Hub",
   titleDelimiter: "·",
-  url: "https://polkadot-security.github.io", // FIXME
+  url: "https://security.parity.io", // FIXME
   baseUrl: "/",
   projectName: "hub",
   organizationName: "polkadot-security",
