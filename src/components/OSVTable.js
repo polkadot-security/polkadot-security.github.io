@@ -34,18 +34,29 @@ export default function OSVTable() {
         ) {
           throw new Error(body.message);
         }
-        setOsv(body.vulns);
+        setOsv(osv.concat(body.vulns));
         setIsLoading(false);
       } catch (error) {
         console.error(`Error trying to fetch data: ${error}`);
       }
     };
-    if (serverUrl && serverUrl.length > 0) {
-      fetchData();
-    } else {
-      setIsLoading(false);
+
+    const fetchPublicData = async () => {
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/polkadot-vulnerabilities/osv/refs/heads/main/all.json');
+        const data = await response.json();
+        setOsv(data.vulns);
+        if (authenticated) {
+          fetchData();
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error(`Error trying to fetch external data: ${error}`);
+      }
     }
-  }, []);
+
+    fetchPublicData();
+  }, [serverUrl]);
 
   const handleLogin = async () => {
     try {
@@ -334,9 +345,6 @@ export default function OSVTable() {
 
   return (
     <>
-      {!authenticated && <button onClick={handleLogin}>Login</button>}
-      {error && <p>Something went wrong :/</p>}
-      {authenticated && <MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
       {<MantineProvider><MantineReactTable table={table}></MantineReactTable></MantineProvider>}
     </>
   );
