@@ -16,7 +16,7 @@ export default function AuditsTable() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/data/audits.csv");
+        const response = await fetch("/data/audits.csv?v=" + Date.now());
         const csvText = await response.text();
         
         Papa.parse(csvText, {
